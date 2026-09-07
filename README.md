@@ -25,25 +25,24 @@ These are historical outputs stored in the notebook, not a freshly reproduced be
 
 ## Open and run
 
-1. Use a Python environment with Jupyter, NumPy, TensorFlow/Keras, Matplotlib, Seaborn, and scikit-learn. Dependency versions are not pinned in this repository.
-2. Place these gzip-compressed IDX files beside the notebook:
+Use Python 3.11 and an isolated environment:
 
-   ```text
-   train-images-idx3-ubyte.gz
-   train-labels-idx1-ubyte.gz
-   t10k-images-idx3-ubyte.gz
-   t10k-labels-idx1-ubyte.gz
-   ```
+```sh
+python -m pip install -r requirements.txt
+jupyter lab ImageClassificationWithCNN.ipynb
+```
 
-3. Open `ImageClassificationWithCNN.ipynb`, select that environment, and run the cells in order.
+Run all cells from a fresh kernel. The notebook explicitly loads **Fashion-MNIST** using Keras; the first run downloads the dataset. Training is configured by `EPOCHS = 100`, which you can lower for an exploratory run. All random generators are seeded through Keras and deterministic TensorFlow operations are enabled. Reproducibility still depends on the software/hardware environment.
 
-The data files are not included. The model filename indicates Fashion-MNIST, but the loader accepts MNIST-format IDX files without checking dataset identity. The reshapes require 60,000 training images and 10,000 test images, each 28 × 28 pixels, with ten classes.
+For existing local IDX data, `data_utils.load_mnist(path, kind='train')` and `kind='t10k'` validate headers, dimensions, counts and class ranges. IDX format alone cannot establish dataset identity; use Fashion-MNIST files for this experiment. Preprocessing supports variable sample counts while requiring 28 × 28 grayscale images.
 
-## Reproduction notes
+## Maintenance validation
 
-- The optimizer uses `tf.keras.optimizers.legacy.SGD`; use a compatible TensorFlow/Keras environment or update this call before running on a newer stack.
-- An augmentation generator is defined, but the training call uses arrays directly, so the recorded training code does **not** apply that augmentation.
-- Only the train/validation split is explicitly seeded; full training reproducibility is not configured.
-- The saved model file is an output of running the notebook and is not included in the repository.
+The model now uses the supported `SGD` optimizer and an explicit input layer. No augmentation is applied, matching the original executed training path; the unused augmentation generator was removed. Corrected notebook cells have cleared outputs so old metrics cannot be mistaken for a new run.
 
-Documentation was checked against the committed notebook source and saved outputs. Training and evaluation were not rerun for this documentation update.
+```sh
+python -m pip install -r requirements-dev.txt
+python -m pytest --rootdir=. tests
+```
+
+The validation checks corrupted IDX headers/counts, small valid datasets, preprocessing, and a real model build plus one training batch on synthetic images. The model smoke test uses TensorFlow 2.16.2/Keras 3.15.1 on Python 3.11. It does not reproduce the historical 90.84% accuracy, download the full dataset, or establish generalization performance. The saved figure and report retain the earlier results with that distinction explicit.
