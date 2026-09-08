@@ -46,3 +46,7 @@ python -m pytest --rootdir=. tests
 ```
 
 The validation checks corrupted IDX headers/counts, small valid datasets, preprocessing, and a real model build plus one training batch on synthetic images. The model smoke test uses TensorFlow 2.16.2/Keras 3.15.1 on Python 3.11. It does not reproduce the historical 90.84% accuracy, download the full dataset, or establish generalization performance. The saved figure and report retain the earlier results with that distinction explicit.
+
+## Automated checks
+
+GitHub Actions runs the validation suite with Python 3.11 on pushes and pull requests. It checks IDX handling and performs one synthetic training batch; it does not download Fashion-MNIST, run the notebook, train for 100 epochs, or reproduce the saved accuracy.
